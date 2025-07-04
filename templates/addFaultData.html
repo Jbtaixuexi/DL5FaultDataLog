@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block title %}故障记录平台{% endblock %}
+
+{% block main %}  <h1 class="header-with-bg" style="text-align: center">故障记录平台</h1>
+    <hr>
+    <div class="tab-content p-3">
+        <!-- 新增面板 -->
+        <div class="tab-pane fade" id="add-panel">
+            <div class="form-section">
+                <h3 class="mb-4">新增故障记录</h3>
+                <form id="addForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>基本信息</h5>
+                            <div class="form-group">
+                                <label for="日期" class="form-label required-field">日期</label>
+                                <input type="date" class="form-control" id="日期" name="日期" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="时间" class="form-label required-field">时间</label>
+                                <input type="time" class="form-control" id="时间" name="时间" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="车号" class="form-label required-field">车号</label>
+                                <select class="form-control" id="车号" name="车号" required>
+                                    <option value="">请选择车号</option>
+                                    <!-- JavaScript 会动态生成选项 -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="问题来源" class="form-label required-field">问题来源</label>
+                                <select class="form-select" id="问题来源" name="问题来源" required>
+                                    <option value="">请选择</option>
+                                    <option value="库内检车（日检和普查）">库内检车（日检和普查）</option>
+                                    <option value="正线故障">正线故障</option>
+                                    <option value="双周检">双周检</option>
+                                    <option value="三月检">三月检</option>
+                                    <option value="定修">定修</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="故障类别" class="form-label required-field">故障类别</label>
+                                <select class="form-select" id="故障类别" name="故障类别" required>
+                                    <option value="">请选择</option>
+                                    <option value="无影响">无影响</option>
+                                    <option value="出库受阻">出库受阻</option>
+                                    <option value="跳停1次">跳停1次</option>
+                                    <option value="跳停2次及以上">跳停2次及以上</option>
+                                    <option value="救援">救援</option>
+                                    <option value="清客">清客</option>
+                                    <option value="停运">停运</option>
+                                    <option value="晚点2-5分钟">晚点2-5分钟</option>
+                                    <option value="晚点5-10分钟">晚点5-10分钟</option>
+                                    <option value="晚点10-30分钟">晚点10-30分钟</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="故障现象" class="form-label required-field">故障现象</label>
+                                <textarea class="form-control" id="故障现象" name="故障现象" rows="2"
+                                          required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="故障具体位置" class="form-label required-field">故障具体位置</label>
+                                <input type="text" class="form-control" id="故障具体位置" name="故障具体位置"
+                                       placeholder="X车X门.." required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5>处理信息</h5>
+                            <div class="form-group">
+                                <label for="状态" class="form-label required-field">状态</label>
+                                <select class="form-select" id="状态" name="状态" required>
+                                    <option value="待处理">待处理</option>
+                                    <option value="处理中">处理中</option>
+                                    <option value="已解决">已解决</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="跟进技术人员" class="form-label required-field">跟进技术人员</label>
+                                <input type="text" class="form-control" id="跟进技术人员" name="跟进技术人员" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="故障系统" class="form-label required-field">故障系统</label>
+                                <select class="form-select" id="故障系统" name="故障系统" required>
+                                    <option value="">请选择故障系统</option>
+                                    <!-- 选项将通过JavaScript动态加载 -->
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="故障二级分类" class="form-label ">故障二级分类</label>
+                                <select class="form-select" id="故障二级分类" name="故障二级分类">
+                                    <option value="">请先选择故障系统</option>
+                                    <!-- 选项将通过JavaScript动态加载 -->
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="三级分类" class="form-label ">三级分类</label>
+                                <select class="form-select" id="三级分类" name="三级分类">
+                                    <option value="">请先选择二级分类</option>
+                                    <!-- 选项将通过JavaScript动态加载 -->
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="四级分类" class="form-label ">四级分类</label>
+                                <select class="form-select" id="四级分类" name="四级分类">
+                                    <option value="">请先选择三级分类</option>
+                                    <!-- 选项将通过JavaScript动态加载 -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5>负责人</h5>
+                            <div class="form-group">
+                                <label for="故障原因" class="form-label required-field">故障原因</label>
+                                <textarea class="form-control" id="故障原因" name="故障原因" rows="2"
+                                          required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="报告人" class="form-label required-field">报告人</label>
+                                <input type="text" class="form-control" id="报告人" name="reporter" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="受理人" class="form-label required-field">受理人</label>
+                                <input type="text" class="form-control" id="受理人" name="受理人" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="当前进度" class="form-label required-field">当前进度</label>
+                                <input type="text" class="form-control" id="当前进度" name="当前进度" required>
+                            </div>
+                            <!-- 新增图片上传部分 -->
+                            <div class="form-group mt-3">
+                                <label for="imageCount" class="form-label">上传图片数量</label>
+                                <select class="form-select" id="imageCount" name="imageCount">
+                                    <option value="0">不上传图片</option>
+                                    <option value="1">上传1张图片</option>
+                                    <option value="2">上传2张图片</option>
+                                    <option value="3">上传3张图片</option>
+                                    <option value="4">上传4张图片</option>
+                                    <option value="5">上传5张图片</option>
+                                </select>
+                            </div>
+
+                            <div class="image-upload-container mt-3" id="imageUploadContainer" style="display: none;">
+                                <div class="upload-instructions mb-2">
+                                    <small class="text-muted">请上传JPG/PNG格式图片，每张不超过5MB</small>
+                                </div>
+                                <div class="upload-fields" id="uploadFields"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5>处理详情</h5>
+                            <div class="form-group">
+                                <label for="预计处理日期" class="form-label">预计处理日期</label>
+                                <input type="date" class="form-control" id="预计处理日期" name="预计处理日期">
+                            </div>
+                            <div class="form-group">
+                                <label for="处理办法" class="form-label required-field">处理办法</label>
+                                <textarea class="form-control" id="处理办法" name="处理办法" rows="2"
+                                          required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="是否更换备件" class="form-label required-field">是否更换备件</label>
+                                <select class="form-select" id="是否更换备件" name="是否更换备件" required>
+                                    <option value="是">是</option>
+                                    <option value="否">否</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="partDetailsGroup" style="display: none;">
+                                <label for="更换备件名称" class="form-label">更换备件名称</label>
+                                <input type="text" class="form-control" id="更换备件名称" name="更换备件名称">
+                                <label for="更换数量" class="form-label">更换数量</label>
+                                <input type="number" class="form-control" id="更换数量" name="更换数量" min="0">
+                                <label for="辅料" class="form-label">辅料</label>
+                                <input type="text" class="form-control" id="辅料" name="辅料">
+                                <label for="工具" class="form-label">工具</label>
+                                <input type="text" class="form-control" id="工具" name="工具">
+                            </div>
+                            <div class="form-group">
+                                <label for="故障定位用时(分钟)" class="form-label">故障定位用时(分钟)</label>
+                                <input type="number" class="form-control" id="故障定位用时(分钟)"
+                                       name="故障定位用时(分钟)" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="更换用时(分钟)" class="form-label">更换用时(分钟)</label>
+                                <input type="number" class="form-control" id="更换用时(分钟)" name="更换用时(分钟)"
+                                       min="0">
+                                <label for="遗留项处理日期" class="form-label">遗留项处理日期</label>
+                                <input type="date" class="form-control" id="遗留项处理日期" name="遗留项处理日期"
+                                       min="0">
+                                <label for="登记人" class="form-label required-field">登记人</label>
+                                <input type="text" class="form-control" id="登记人" name="登记人" min="0" required>
+                                <label for="登记时间" class="form-label required-field">登记时间</label>
+                                <input type="date" class="form-control" id="登记时间" name="登记时间" min="0" required>
+                                <label for="是否有效" class="form-label required-field">是否有效</label>
+                                <select class="form-select" id="是否有效" name="是否有效" required>
+                                    <option value="是">是</option>
+                                    <option value="否">否</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-12 action-buttons">
+                            <button type="submit" class="btn btn-success me-2">提交</button>
+                            <button type="reset" class="btn btn-outline-secondary">重置</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div id="addResult" class="alert mt-3" style="display: none;"></div>
+        </div>
+    </div>
+{% endblock %}

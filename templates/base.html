@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'bootstrap5/bootstrap.min.css' %}">
+{#    <link rel="stylesheet" href="{% static 'css/status.css' %}">#}
+    <script src="{% static 'bootstrap5/popper.min.js' %}"></script>
+    <script src="{% static 'bootstrap5/bootstrap.min.js' %}"></script>
+    <script src="{% static 'jquery/jquery-3.6.0.js' %}"></script>
+    <link rel="{% static 'jquery/jquery-ui.css' %}">
+    <script src="{% static 'jquery/jquery-ui.js' %}"></script>
+    {% block head %}{% endblock %}
+</head>
+<body>
+<header class="p-3 text-bg-light border-bottom mb-3">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                <img src="{% static 'image/logo.png' %}" height="40" alt="">
+            </a>
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a href="{% url 'faults:search_fault_data' %}" class="nav-link px-2 text-secondary">故障查询</a></li>
+                <li><a href="{% url 'faults:search_fault_data' %}" class="nav-link px-2 text-secondary">新增数据</a></li>
+            </ul>
+{#            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">#}
+{#                <input type="search" class="form-control" placeholder="搜索..." aria-label="Search">#}
+{#            </form>#}
+            <div class="text-end">
+                {% if user.is_authenticated %}
+                    <!-- 登录状态显示 -->
+                    <div class="d-flex align-items-center">
+                        <span class="me-2 text-dark">您好, <strong>{{ user.username }}</strong></span>
+                        {% if user.level == 1 %}
+                            <!-- 仅管理员显示注册按钮 -->
+                            <a href="{% url 'accounts:register' %}" class="btn btn-primary me-2">注册新用户</a>
+                        {% endif %}
+                        <a href="{% url 'accounts:logout' %}" class="btn btn-outline-danger">登出</a>
+                    </div>
+                {% else %}
+                    <!-- 未登录状态显示 -->
+                    <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary me-2">登录</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container bg-white p-3 rounded">
+    {% block main %}{% endblock %}
+</main>
+{% block script %}{% endblock %}
+</body>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
+</html>

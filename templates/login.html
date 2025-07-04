@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>故障管理系统 - 登录</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+<div class="login-container">
+    <div class="logo">
+        <!-- 替换为你的logo -->
+        <img src="{% static 'image/logo.png' %}" alt="故障管理系统">
+    </div>
+
+    <div class="login-header">
+        <h1>故障信息管理系统</h1>
+        <p>请输入您的账号和密码</p>
+    </div>
+
+    <!-- Django 表单开始 -->
+    <!-- 修改表单部分 -->
+    <form method="post" action="{% url 'accounts:login' %}">
+        {% csrf_token %}
+
+        <!-- 错误消息显示 -->
+        {% if error_message %}
+            <div class="error-message">
+                {{ error_message }}
+            </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="id_username">用户名</label>
+            <input type="text" id="id_username" name="username"
+                   placeholder="请输入用户名" required autofocus>
+        </div>
+
+        <div class="form-group">
+            <label for="id_password">密码</label>
+            <input type="password" id="id_password" name="password"
+                   placeholder="请输入密码" required>
+        </div>
+
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" name="remember"
+                   value="true" id="rememberMe">
+            <label class="form-check-label" for="rememberMe">
+                记住我
+            </label>
+        </div>
+
+        <button type="submit" class="login-button">登录</button>
+    </form>
+    <!-- Django 表单结束 -->
+
+    <div class="register-link">
+        没有账号？请联系管理员创建账号
+    </div>
+</div>
+</body>
+</html>
