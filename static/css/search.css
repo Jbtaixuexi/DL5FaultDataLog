@@ -1,0 +1,319 @@
+
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2c3e50;
+    --accent-color: #e74c3c;
+    --light-bg: #f8f9fa;
+    --dark-bg: #212529;
+}
+
+body {
+    background-color: #f5f7fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding-top: 20px;
+}
+
+.header-with-bg {
+    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.tab-content {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    padding: 10px 15px;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+}
+
+.btn {
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    border: none;
+}
+
+.btn-outline-secondary {
+    border-color: #dee2e6;
+}
+
+.btn-outline-danger {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-outline-danger:hover {
+    background: var(--accent-color);
+    color: white;
+}
+
+.btn-outline-warning {
+    border-color: #ffc107;
+    color: #ffc107;
+}
+
+.btn-outline-success {
+    border-color: #28a745;
+    color: #28a745;
+}
+
+.table {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.table thead {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.table th {
+    font-weight: 600;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.pagination .page-link {
+    color: var(--secondary-color);
+    border-radius: 8px;
+    margin: 0 5px;
+    border: none;
+    padding: 8px 16px;
+}
+
+.pagination .page-link:hover {
+    background-color: #e9ecef;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-radius: 8px;
+    border: none;
+}
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-pending {
+    background-color: #ffeeba;
+    color: #856404;
+}
+
+.status-in-progress {
+    background-color: #bee5eb;
+    color: #0c5460;
+}
+
+.status-resolved {
+    background-color: #c3e6cb;
+    color: #155724;
+}
+
+.status-overdue {
+    background-color: #f5c6cb;
+    color: #721c24;
+}
+
+.ui-state-highlight {
+    background: #f8f9fa;
+    border: 1px solid var(--primary-color);
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(52, 152, 219, 0.2);
+    border-top: 5px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.status-pending {
+    background-color: #ffcccc;
+    color: #cc0000;
+}
+
+.status-in-progress {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-resolved {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.card {
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    border: none;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #2575fc;
+    border-color: #2575fc;
+}
+
+.btn-outline-primary {
+    color: #2575fc;
+    border-color: #2575fc;
+}
+
+.btn-outline-primary:hover {
+    background-color: #2575fc;
+    color: white;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #6a11cb;
+    box-shadow: 0 0 0 0.25rem rgba(106, 17, 203, 0.25);
+}
+
+/* 添加在 head 部分或单独的 CSS 文件中 */
+.table-container {
+    overflow-x: auto;
+    width: 100%;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+#faultTable {
+    min-width: 3500px;
+}
+
+#faultTable td {
+    white-space: normal;
+    vertical-align: top;
+    padding: 8px 4px;
+}
+/* 设置重要列的最小宽度 */
+#faultTable th:nth-child(1), #faultTable td:nth-child(1) { width: 50px; } /* 选择框 */
+#faultTable th:nth-child(2), #faultTable td:nth-child(2) { width: 100px; } /* 日期 */
+#faultTable th:nth-child(3), #faultTable td:nth-child(3) { width: 80px; } /* 时间 */
+#faultTable th:nth-child(4), #faultTable td:nth-child(4) { width: 60px; } /* 车号 */
+#faultTable th:nth-child(9), #faultTable td:nth-child(9) { width: 80px; } /* 状态 */
+
+/* 设置长文本列的宽度 */
+#faultTable th:nth-child(6), #faultTable td:nth-child(6) { width: 300px; } /* 故障现象 */
+#faultTable th:nth-child(14), #faultTable td:nth-child(14) { width: 300px; } /* 故障原因 */
+#faultTable th:nth-child(18), #faultTable td:nth-child(18) { width: 300px; } /* 处理进度 */
+#faultTable th:nth-child(20), #faultTable td:nth-child(20) { width: 300px; } /* 解决方案 */
+#faultTable th:nth-child(32), #faultTable td:nth-child(32) { width: 300px; } /* 图片路径 */
+
+/* 限制长文本显示行数 */
+.truncate-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    max-height: 4.5em;
+}
+
+
+/* 日期选择器样式 - 新增部分 */
+.flatpickr-calendar {
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.flatpickr-day.today {
+    border-color: var(--primary-color);
+}
+
+.flatpickr-input {
+    background-color: white;
+    cursor: pointer;
+}
