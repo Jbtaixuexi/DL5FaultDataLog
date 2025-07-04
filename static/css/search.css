@@ -21,6 +21,14 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+
+.card {
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    border: none;
+}
+/*鼠标悬停向上移动5像素*/
 .card:hover {
     transform: translateY(-5px);
 }
@@ -216,12 +224,7 @@ body {
     color: #155724;
 }
 
-.card {
-    border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    margin-bottom: 30px;
-    border: none;
-}
+
 
 @keyframes fadeIn {
     from {
@@ -266,24 +269,17 @@ body {
     min-width: 3500px;
 }
 
+#faultTable th {
+    white-space: nowrap; /* 禁止换行 */
+    width: auto; /* 宽度自适应 */
+    padding: 0 10px; /* 增加内边距 */
+}
+
 #faultTable td {
     white-space: normal;
     vertical-align: top;
     padding: 8px 4px;
 }
-/* 设置重要列的最小宽度 */
-#faultTable th:nth-child(1), #faultTable td:nth-child(1) { width: 50px; } /* 选择框 */
-#faultTable th:nth-child(2), #faultTable td:nth-child(2) { width: 100px; } /* 日期 */
-#faultTable th:nth-child(3), #faultTable td:nth-child(3) { width: 80px; } /* 时间 */
-#faultTable th:nth-child(4), #faultTable td:nth-child(4) { width: 60px; } /* 车号 */
-#faultTable th:nth-child(9), #faultTable td:nth-child(9) { width: 80px; } /* 状态 */
-
-/* 设置长文本列的宽度 */
-#faultTable th:nth-child(6), #faultTable td:nth-child(6) { width: 300px; } /* 故障现象 */
-#faultTable th:nth-child(14), #faultTable td:nth-child(14) { width: 300px; } /* 故障原因 */
-#faultTable th:nth-child(18), #faultTable td:nth-child(18) { width: 300px; } /* 处理进度 */
-#faultTable th:nth-child(20), #faultTable td:nth-child(20) { width: 300px; } /* 解决方案 */
-#faultTable th:nth-child(32), #faultTable td:nth-child(32) { width: 300px; } /* 图片路径 */
 
 /* 限制长文本显示行数 */
 .truncate-text {

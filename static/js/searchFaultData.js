@@ -7,10 +7,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let totalPages = 1;
 
     function sendSearchRequest(page = 1) {
-        console.log('Debug - sendSearchRequest called', page);
         // 更新当前页
         currentPage = page;
-
         // 获取表单数据并转换为对象
         const formData = new FormData(searchForm);
         const pageSizeElement = document.getElementById('pageSizeSelect');
@@ -20,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
             page_size: pageSizeValue,
         };
         [
-            'trainNumber', 'status', 'dateRange', 'parts',
+            'trainNumber', 'status', 'searchDateRange', 'parts',
             'expiringDays', 'expiredDays'
         ].forEach(field => {
             data[field] = formData.get(field);
@@ -86,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // 复选框列
             const checkboxCell = document.createElement('td');
-            checkboxCell.innerHTML = '<input type="checkbox">';
+            checkboxCell.innerHTML = `<input type="checkbox" name="selected_ids" value="${item.id}">`;
             row.appendChild(checkboxCell);
 
             // 使用模板字符串创建所有列
@@ -202,46 +200,6 @@ document.addEventListener('DOMContentLoaded', function () {
         sendSearchRequest(1); // 重置到第一页
     });
 });
-
-document.addEventListener('DOMContentLoaded', function () {
-    // 初始化日期字段
-    initDateFields();
-
-    // 初始化车号选择器
-    initTrainNumberSelect();
-
-    // 加载第一页数据
-    searchFaults(1);
-
-    // 初始化备件更换显示控制
-    initPartReplacementToggle();
-
-    // 初始化搜索功能
-    initSearchFunctionality();
-
-    // 初始化导出功能
-    initExportFunctionality();
-
-    // 初始化删除功能
-    initDeleteFunctionality();
-
-    // 初始化编辑功能
-    initEditFunctionality();
-
-    // 初始化新增故障表单
-    initAddFaultForm();
-
-    // 初始化日期范围选择器
-    initDateRangePicker();
-
-    // 初始化状态选择器
-    initStatusSelectors();
-
-    // 初始化故障分类联动选择
-    initFaultClassification();
-});
-
-// 在DOMContentLoaded事件内添加以下代码
 document.addEventListener('DOMContentLoaded', function () {
     // 初始化日期选择器
     flatpickr("#searchDateRange", {
@@ -253,11 +211,9 @@ document.addEventListener('DOMContentLoaded', function () {
         onChange: function (selectedDates, dateStr) {
             if (selectedDates.length === 2) {
                 // 设置隐藏输入框的值
-                document.getElementById('actualDateRange').value =
-                    selectedDates[0].toISOString().split('T')[0] + ',' +
+                document.getElementById('actualDateRange').value = selectedDates[0].toISOString().split('T')[0] + ',' +
                     selectedDates[1].toISOString().split('T')[0];
             }
         }
     });
 });
-

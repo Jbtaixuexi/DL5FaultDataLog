@@ -39,7 +39,8 @@
                                 <div class="col-md-3">
                                     <label for="searchDateRange" class="form-label">日期范围</label>
                                     <div class="mb-3">
-                                        <input type="text" class="form-control flatpickr-input" id="searchDateRange"
+                                        <input type="text" class="form-control flatpickr-input " name="searchDateRange"
+                                               id="searchDateRange"
                                                placeholder="选择日期范围" readonly>
                                         <input type="hidden" id="actualDateRange" name="actualDateRange">
                                     </div>
@@ -75,12 +76,10 @@
                                             </button>
                                         </div>
                                         <div>
-                                            <button class="btn btn-outline-danger me-2" type="button" id="deleteBtn"
-                                                    disabled>
+                                            <button class="btn btn-outline-danger me-2" type="button" id="deleteBtn">
                                                 <i class="bi bi-trash me-1"></i> 删除选中
                                             </button>
-                                            <button class="btn btn-outline-warning me-2" type="button" id="editBtn"
-                                                    disabled>
+                                            <button class="btn btn-outline-warning me-2" type="button" id="editBtn">
                                                 <i class="bi bi-pencil me-1"></i> 修改选中
                                             </button>
                                             <button class="btn btn-outline-success" type="button" id="exportBtn">
@@ -107,7 +106,7 @@
                         <div class="table-container">
                             <table id="faultTable" class="table table-striped table-hover">
                                 <thead>
-                                <tr>
+                                <tr class="table-primary">
                                     <th><input type="checkbox" id="selectAll"></th>
                                     <th>日期</th>
                                     <th>时间</th>

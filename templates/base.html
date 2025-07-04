@@ -22,7 +22,7 @@
             </a>
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                 <li><a href="{% url 'faults:search_fault_data' %}" class="nav-link px-2 text-secondary">故障查询</a></li>
-                <li><a href="{% url 'faults:search_fault_data' %}" class="nav-link px-2 text-secondary">新增数据</a></li>
+                <li><a href="{% url 'faults:add_fault_data' %}" class="nav-link px-2 text-secondary">新增数据</a></li>
             </ul>
 {#            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">#}
 {#                <input type="search" class="form-control" placeholder="搜索..." aria-label="Search">#}
@@ -52,6 +52,7 @@
 </main>
 {% block script %}{% endblock %}
 </body>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/flatpickr/4.6.13/l10n/zh.min.js"></script>
+
 </html>

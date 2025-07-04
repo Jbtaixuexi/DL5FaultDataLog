@@ -1,7 +1,7 @@
 from django.core.paginator import Paginator
 from django.forms import model_to_dict
 from django.http import JsonResponse
-from .models import FaultRecord, System, SecondaryCategory, ThirdCategory, FourthCategory
+from .models import FaultRecord
 import json
 from datetime import datetime, timedelta
 from django.db.models import Q
@@ -28,7 +28,7 @@ def search_fault_data(request):
             page = data.get('page', 1)
             train_number = data.get('trainNumber', '').strip()
             status = data.get('status', '')
-            date_range_str = data.get('dateRange', '')
+            date_range_str = data.get('searchDateRange', '')
             parts = data.get('parts', '').strip()
             expiring_days = data.get('expiringDays', '') or None
             expired_days = data.get('expiredDays', '') or None
@@ -70,13 +70,16 @@ def search_fault_data(request):
 
             if date_range_str:
                 try:
-                    start_str, end_str = date_range_str.split(',')
+                    if '至' in date_range_str:
+                        start_str, end_str = [s.strip() for s in date_range_str.split('至')]
+                    else:
+                        start_str, end_str = date_range_str.split(',')
                     start_date = datetime.strptime(start_str, '%Y-%m-%d').date()
                     end_date = datetime.strptime(end_str, '%Y-%m-%d').date()
                     queryset = queryset.filter(date__range=[start_date, end_date])
                     logger.info(f"After date filter: {queryset.count()}")
                 except Exception as e:
-                    logger.warning(f"Invalid dateRange format: {date_range_str} - {str(e)}")
+                    logger.warning(f"日期数据格式不正确: {date_range_str} - {str(e)}")
 
             # 按部件名称过滤
             if parts:
@@ -160,3 +163,10 @@ def search_fault_data(request):
         except Exception as e:
             logger.error(f"Error in search_fault_data: {str(e)}", exc_info=True)
             return JsonResponse({'error': 'Internal server error', 'details': str(e)}, status=500)
+
+
+@require_http_methods(['GET','POST'])
+def add_fault_data(request):
+    if request.method == 'GET':
+        return render(request,'addFaultData.html')
+    pass
