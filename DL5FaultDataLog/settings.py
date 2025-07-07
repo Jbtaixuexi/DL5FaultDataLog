@@ -93,6 +93,9 @@ DATABASES = {
         "PASSWORD": '123456',
         'HOST': 'localhost',
         'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',  # 使用utf8mb4支持所有Unicode字符
+        },
     }
 }
 

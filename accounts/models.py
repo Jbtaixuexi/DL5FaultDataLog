@@ -79,3 +79,9 @@ class CustomUser(AbstractUser):
 
     def is_visitor(self):
         return self.level == 4
+
+    def send_notification(self, message):
+        """发送通知给用户（实际项目中应实现通知逻辑）"""
+        # 这里只是示例，实际项目中应实现邮件、消息推送等
+        print(f"发送通知给 {self.username}: {message}")
+        return True

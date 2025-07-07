@@ -200,20 +200,74 @@ document.addEventListener('DOMContentLoaded', function () {
         sendSearchRequest(1); // 重置到第一页
     });
 });
-document.addEventListener('DOMContentLoaded', function () {
-    // 初始化日期选择器
-    flatpickr("#searchDateRange", {
-        mode: "range",
-        locale: "zh",
-        dateFormat: "Y-m-d",
-        allowInput: true,
-        static: true,
-        onChange: function (selectedDates, dateStr) {
-            if (selectedDates.length === 2) {
-                // 设置隐藏输入框的值
-                document.getElementById('actualDateRange').value = selectedDates[0].toISOString().split('T')[0] + ',' +
-                    selectedDates[1].toISOString().split('T')[0];
-            }
+
+// 初始化日期选择器
+flatpickr("#searchDateRange", {
+    mode: "range",
+    locale: "zh",
+    dateFormat: "Y-m-d",
+    allowInput: true,
+    static: true,
+    onChange: function (selectedDates, dateStr) {
+        if (selectedDates.length === 2) {
+            // 设置隐藏输入框的值
+            document.getElementById('actualDateRange').value = selectedDates[0].toISOString().split('T')[0] + ',' +
+                selectedDates[1].toISOString().split('T')[0];
         }
+    }
+})
+
+
+// 添加删除按钮事件监听
+document.getElementById('deleteBtn').addEventListener('click', function () {
+    // 获取所有选中的复选框
+    const selectedCheckboxes = document.querySelectorAll('input[name="selected_ids"]:checked');
+
+    if (selectedCheckboxes.length === 0) {
+        alert('请至少选择一条要删除的记录！');
+        return;
+    }
+
+    // 确认删除
+    if (!confirm(`确定要删除选中的 ${selectedCheckboxes.length} 条数据吗？此操作不可撤销！`)) {
+        return;
+    }
+
+    // 收集选中的ID
+    const idsToDelete = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+
+    // 发送删除请求
+    fetch('/faults/delete_faults/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ids: idsToDelete})
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('删除请求失败');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert(`成功删除 ${data.deleted_count} 条记录！`);
+                // 刷新表格
+                sendSearchRequest(currentPage);
+            } else {
+                alert(`删除失败: ${data.message}`);
+            }
+        })
+        .catch(error => {
+            console.error('删除错误:', error);
+            alert('删除过程中发生错误，请重试');
+        });
+});
+document.getElementById('selectAll').addEventListener('change', function () {
+    const checkboxes = document.querySelectorAll('input[name="selected_ids"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
     });
 });

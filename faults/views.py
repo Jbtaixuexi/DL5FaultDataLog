@@ -1,17 +1,20 @@
 from django.core.paginator import Paginator
 from django.forms import model_to_dict
 from django.http import JsonResponse
-from .models import FaultRecord
+from django.views.decorators.csrf import csrf_exempt
+
+from accounts.models import CustomUser
+from .models import FaultRecord, Vehicle, System, SecondaryCategory, ThirdCategory, FourthCategory
 import json
 from datetime import datetime, timedelta
 from django.db.models import Q
 from django.shortcuts import render
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_http_methods, require_GET, require_POST
 import logging
 
 logger = logging.getLogger(__name__)
 
-
+# 查询用法
 @require_http_methods(['GET', 'POST'])
 def search_fault_data(request):
     if request.method == 'GET':
@@ -165,8 +168,209 @@ def search_fault_data(request):
             return JsonResponse({'error': 'Internal server error', 'details': str(e)}, status=500)
 
 
-@require_http_methods(['GET','POST'])
+@require_GET
+def accepter_list(request):
+    """获取所有level为1或2的用户列表"""
+    accepters = CustomUser.objects.filter(level__in=[1, 2]).values('username')
+    return JsonResponse(list(accepters), safe=False)
+
+
+# 新增用法
+@csrf_exempt
+@require_http_methods(['GET', 'POST'])
 def add_fault_data(request):
     if request.method == 'GET':
-        return render(request,'addFaultData.html')
-    pass
+        return render(request, 'addFaultData.html')
+    else:
+        try:
+            # 状态映射
+            STATUS_MAP = {
+                '待处理': 'pending',
+                '处理中': 'processing',
+                '已解决': 'resolved'
+            }
+
+            # 处理日期字段
+            from django.utils.dateparse import parse_date, parse_time
+
+            try:
+                date = parse_date(request.POST.get('日期'))
+                time = parse_time(request.POST.get('时间'))
+                expected_date = parse_date(request.POST.get('预计处理日期')) if request.POST.get(
+                    '预计处理日期') else None
+                legacy_date = parse_date(request.POST.get('遗留项处理日期')) if request.POST.get(
+                    '遗留项处理日期') else None
+            except (ValueError, TypeError) as e:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'日期格式错误: {str(e)}'
+                }, status=400)
+
+            # 从表单数据中提取字段
+            data = {
+                'date': date,
+                'time': time,
+                'train_number': request.POST.get('车号'),
+                'source': request.POST.get('问题来源'),
+                'fault_type': request.POST.get('故障类别'),
+                'phenomenon': request.POST.get('故障现象'),
+                'location': request.POST.get('故障具体位置'),
+                'status': STATUS_MAP.get(request.POST.get('状态'), 'pending'),  # 使用状态映射
+                'technician': request.POST.get('跟进技术人员'),
+                'cause': request.POST.get('故障原因'),
+                'reporter': request.POST.get('reporter'),
+                'receiver': request.POST.get('受理人'),
+                'progress': request.POST.get('当前进度'),
+                'expected_date': expected_date,
+                'solution': request.POST.get('处理办法'),
+                'part_replaced': request.POST.get('是否更换备件') == '是',
+                'part_name': request.POST.get('更换备件名称') or None,
+                'part_quantity': int(request.POST.get('更换数量')) if request.POST.get('更换数量') else None,
+                'materials': request.POST.get('辅料') or None,
+                'tools': request.POST.get('工具') or None,
+                'location_time': int(request.POST.get('故障定位用时(分钟)')) if request.POST.get(
+                    '故障定位用时(分钟)') else None,
+                'replacement_time': int(request.POST.get('更换用时(分钟)')) if request.POST.get(
+                    '更换用时(分钟)') else None,
+                'legacy_date': legacy_date,
+                'registrar': request.POST.get('登记人'),
+                'is_valid': request.POST.get('是否有效') == '是',
+            }
+
+            # 处理外键字段 - 转换为整数ID
+            foreign_key_fields = {
+                'system_id': request.POST.get('故障系统'),
+                'secondary_id': request.POST.get('故障二级分类'),
+                'third_id': request.POST.get('三级分类'),
+                'fourth_id': request.POST.get('四级分类'),
+            }
+
+            for field, value in foreign_key_fields.items():
+                if value and value.isdigit():
+                    data[field] = int(value)
+                else:
+                    data[field] = None  # 允许空值
+
+            # 处理图片上传
+            image_paths = []
+            image_count = int(request.POST.get('imageCount', 0))
+
+            for i in range(1, image_count + 1):
+                image_key = f'image_{i}'
+                if image_key in request.FILES:
+                    image = request.FILES[image_key]
+                    # 实际项目中应保存文件并获取路径
+                    # 这里简化为保存文件名
+                    image_paths.append(image.name)
+
+            # 添加图片相关字段
+            data['image_count'] = image_count
+            data['image_paths'] = image_paths
+
+            # 记录处理后的数据
+            logger.info(f"Creating fault record with data: {data}")
+
+            # 创建故障记录
+            fault = FaultRecord.objects.create(**data)
+
+            logger.info(f"Fault record created: ID={fault.id}")
+
+            return JsonResponse({
+                'success': True,
+                'fault_id': fault.id,
+                'accepter': data['receiver']
+            })
+
+        except Exception as e:
+            logger.error(f"Error creating fault record: {str(e)}", exc_info=True)
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=400)
+
+# 删除用法
+@csrf_exempt
+def delete_faults(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            ids = data.get('ids', [])
+
+            if not ids:
+                return JsonResponse({
+                    'success': False,
+                    'message': '未提供要删除的ID'
+                })
+
+            # 获取要删除的记录
+            records_to_delete = FaultRecord.objects.filter(id__in=ids)
+            deleted_count = records_to_delete.count()
+
+            # 执行删除
+            records_to_delete.delete()
+
+            return JsonResponse({
+                'success': True,
+                'deleted_count': deleted_count,
+                'message': f'成功删除 {deleted_count} 条记录'
+            })
+
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'删除失败: {str(e)}'
+            })
+
+    return JsonResponse({
+        'success': False,
+        'message': '无效的请求方法'
+    })
+@csrf_exempt
+@require_POST
+def notify_accepted(request):
+    """通知受理人（实际项目中应实现通知逻辑）"""
+    accepter = request.POST.get('accepter')
+    fault_id = request.POST.get('fault_id')
+    message = request.POST.get('message')
+
+    # 实际项目中应实现真正的通知逻辑（邮件、消息系统等）
+    print(f"通知受理人 {accepter}: {message}")
+
+    return JsonResponse({'success': True})
+
+
+def vehicle_list(request):
+    try:
+        # 查询所有车号
+        vehicles = Vehicle.objects.values_list('plate_number', flat=True)
+        # 转换为列表并返回JSON
+        return JsonResponse(list(vehicles), safe=False)
+    except Exception as e:
+        # 打印错误信息（在终端可见）
+        print(f"Error fetching vehicles: {e}")
+        # 返回友好的错误响应
+        return JsonResponse({'error': '获取车号列表失败'}, status=500)
+
+
+def get_systems(request):
+    """获取所有系统和车号"""
+    systems = System.objects.all().values('id', 'name')
+    vehicles = Vehicle.objects.all().values('id', 'plate_number')
+
+    return JsonResponse({
+        'systems': list(systems),
+        'vehicles': list(vehicles)
+    })
+
+
+def get_all_categories(request):
+    """获取所有分类数据"""
+    secondaries = SecondaryCategory.objects.all().values('id', 'name', 'system_id')
+    thirds = ThirdCategory.objects.all().values('id', 'name', 'secondary_id')
+    fourths = FourthCategory.objects.all().values('id', 'name', 'third_id')
+
+    return JsonResponse({
+        'secondaries': list(secondaries),
+        'thirds': list(thirds),
+        'fourths': list(fourths)
+    })

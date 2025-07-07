@@ -1,5 +1,5 @@
 from django.utils.html import format_html
-from .models import FaultRecord, SecondaryCategory, ThirdCategory, System
+from .models import FaultRecord, SecondaryCategory, ThirdCategory, System, Vehicle, FourthCategory
 from django.contrib import admin
 
 
@@ -23,16 +23,55 @@ class SecondaryAdmin(admin.ModelAdmin):
     inlines = [ThirdInline]
 
 
+class FourthCategoryInline(admin.TabularInline):
+    model = FourthCategory
+    extra = 1
+
+
+@admin.register(ThirdCategory)
+class ThirdCategoryAdmin(admin.ModelAdmin):
+    inlines = [FourthCategoryInline]
+
+
 @admin.register(FaultRecord)
 class FaultRecordAdmin(admin.ModelAdmin):
     # 列表页显示字段（关键信息）
     list_display = (
         'date',
+        'time',
         'train_number',
+        'source',
         'fault_type',
+        'phenomenon',
+        'location',
         'status',
         'technician',
-        'registrar'
+        'system',
+        'secondary',
+        'third',
+        'fourth',
+        'cause',
+        'reporter',
+        'receiver',
+        'progress',
+        'expected_date',
+        'solution',
+        'part_replaced',
+        'part_name',
+        'part_quantity',
+        'materials',
+        'tools',
+        'location_time',
+        'replacement_time',
+        'legacy_date',
+        'registrar',
+        'registration_time',
+        'is_valid',
+        'image_count',
+        'image_paths',
+        'modified_by',
+        'modified_at',
+
     )
 
     # 搜索字段（支持多字段联合搜索）
@@ -50,7 +89,6 @@ class FaultRecordAdmin(admin.ModelAdmin):
         'date',
         'train_number',
         'fault_type',
-        ('category', admin.RelatedOnlyFieldListFilter),
         'part_replaced',
         'is_valid'
     )
@@ -144,6 +182,13 @@ class FaultRecordAdmin(admin.ModelAdmin):
     # 覆盖默认的__str__显示
     def __str__(self):
         return f"{self.date} {self.train_number}"
+
+
+@admin.register(Vehicle)
+class VehicleAdmin(admin.ModelAdmin):
+    list_display = ('plate_number',)
+    search_fields = ('plate_number',)
+    ordering = ('plate_number',)
 
 
 # 可选：添加全局管理配置

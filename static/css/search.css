@@ -21,6 +21,10 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* 行选中效果 */
+.table-active {
+    background-color: rgba(13, 110, 253, 0.15) !important;
+}
 
 .card {
     border-radius: 12px;
@@ -28,6 +32,7 @@ body {
     margin-bottom: 30px;
     border: none;
 }
+
 /*鼠标悬停向上移动5像素*/
 .card:hover {
     transform: translateY(-5px);
@@ -223,7 +228,6 @@ body {
     background-color: #d4edda;
     color: #155724;
 }
-
 
 
 @keyframes fadeIn {
