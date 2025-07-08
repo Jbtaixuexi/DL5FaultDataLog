@@ -45,7 +45,7 @@ $(document).ready(function () {
 
     // 加载受理人列表（level 1和2的用户）
     $.ajax({
-        url: 'accepted_list/',
+        url: '/faults/accepted_list/',
         type: 'GET',
         success: function (data) {
             const accepterSelect = $('#受理人');
@@ -131,22 +131,6 @@ $(document).ready(function () {
     });
 });
 
-// 通知受理人函数
-function notifyAccepter(accepter, faultId) {
-    $.ajax({
-        url: '/api/notify-accepter/',
-        type: 'POST',
-        data: {
-            accepter: accepter,
-            fault_id: faultId,
-            message: `您有一条新的故障记录待处理，ID: ${faultId}`
-        },
-        success: function (response) {
-            console.log('通知已发送');
-        }
-    });
-}
-
 
 document.addEventListener('DOMContentLoaded', function () {
     const vehicleSelect = document.getElementById('车号');
@@ -204,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 设置分类选择器事件监听
     function setupCategoryListeners(systemSelect, secondarySelect, thirdSelect, fourthSelect) {
         // 一级分类变化时更新二级分类
-        systemSelect.addEventListener('change', function() {
+        systemSelect.addEventListener('change', function () {
             const systemId = this.value;
             populateSecondarySelect(secondarySelect, systemId);
 
@@ -214,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // 二级分类变化时更新三级分类
-        secondarySelect.addEventListener('change', function() {
+        secondarySelect.addEventListener('change', function () {
             const secondaryId = this.value;
             populateThirdSelect(thirdSelect, secondaryId);
 
@@ -223,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // 三级分类变化时更新四级分类
-        thirdSelect.addEventListener('change', function() {
+        thirdSelect.addEventListener('change', function () {
             const thirdId = this.value;
             populateFourthSelect(fourthSelect, thirdId);
         });
@@ -291,3 +275,143 @@ document.addEventListener('DOMContentLoaded', function () {
         select.value = "";
     }
 });
+
+// 图片上传功能
+let imageCount = 0;
+const maxImages = 5;
+
+document.getElementById('addImageBtn').addEventListener('click', function () {
+    if (imageCount >= maxImages) {
+        alert(`最多只能上传${maxImages}张图片`);
+        return;
+    }
+
+    imageCount++;
+    document.getElementById('imageCount').value = imageCount;
+
+    const fieldDiv = document.createElement('div');
+    fieldDiv.className = 'upload-field mb-2';
+    fieldDiv.innerHTML = `
+        <div class="input-group">
+            <input type="file" class="form-control" name="image_${imageCount}" 
+                   accept="image/jpeg, image/png" data-index="${imageCount}">
+            <button type="button" class="btn btn-outline-danger delete-image-btn">删除</button>
+        </div>
+        <div class="image-preview mt-2" id="preview_${imageCount}" style="display:none;">
+            <img src="" alt="预览" style="max-width:100px; max-height:100px;">
+        </div>
+    `;
+
+    document.getElementById('uploadFields').appendChild(fieldDiv);
+
+    // 添加删除按钮事件
+    fieldDiv.querySelector('.delete-image-btn').addEventListener('click', function () {
+        fieldDiv.remove();
+        imageCount--;
+        document.getElementById('imageCount').value = imageCount;
+    });
+
+    // 添加文件选择事件
+    const fileInput = fieldDiv.querySelector('input[type="file"]');
+    fileInput.addEventListener('change', function (e) {
+        const previewDiv = document.getElementById(`preview_${this.dataset.index}`);
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                previewDiv.style.display = 'block';
+                previewDiv.querySelector('img').src = e.target.result;
+            }
+            reader.readAsDataURL(this.files[0]);
+        } else {
+            previewDiv.style.display = 'none';
+        }
+    });
+});
+
+// 表单提交处理
+document.getElementById('addForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // 创建FormData对象
+    const formData = new FormData(this);
+
+    // 添加CSRF token
+    const csrftoken = getCookie('csrftoken');
+
+    // 发送AJAX请求
+    fetch('{% url "add_fault_data" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // 处理响应
+        const resultDiv = document.getElementById('addResult');
+        if (data.success) {
+            resultDiv.className = 'alert alert-success mt-3';
+            resultDiv.textContent = '故障记录添加成功！';
+
+            // 通知受理人
+            notifyAccepter(data.accepter, data.fault_id);
+
+            // 3秒后重置表单
+            setTimeout(() => {
+                document.getElementById('addForm').reset();
+                document.getElementById('uploadFields').innerHTML = '';
+                imageCount = 0;
+                document.getElementById('imageCount').value = 0;
+                resultDiv.style.display = 'none';
+            }, 3000);
+        } else {
+            resultDiv.className = 'alert alert-danger mt-3';
+            resultDiv.textContent = `添加失败: ${data.message}`;
+        }
+        resultDiv.style.display = 'block';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        const resultDiv = document.getElementById('addResult');
+        resultDiv.className = 'alert alert-danger mt-3';
+        resultDiv.textContent = '网络错误，请重试';
+        resultDiv.style.display = 'block';
+    });
+});
+
+// 通知受理人
+function notifyAccepter(accepter, faultId) {
+    const message = `您有一个新的故障记录需要处理，故障ID: ${faultId}`;
+
+    fetch('{% url "notify_accepted" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            accepter: accepter,
+            fault_id: faultId,
+            message: message
+        })
+    });
+}
+
+// 获取Cookie的函数
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+

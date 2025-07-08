@@ -7,9 +7,7 @@
     <link rel="stylesheet" href="{% static 'css/dataSelect.css' %}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="{% static 'bootstrap5/bootstrap.bundle.min.js' %}"></script>
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
-    <script src="https://cdn.bootcdn.net/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
-    <script src="https://cdn.bootcdn.net/ajax/libs/flatpickr/4.6.13/l10n/zh.min.js"></script>
+    <script src="{% static 'outside/http_cdn.sheetjs.com_xlsx-0.19.3_package_dist_xlsx.full.min.js' %}"></script>
 {% endblock %}
 
 {% block main %}
@@ -73,7 +71,8 @@
                                             </button>
                                         </div>
                                         <div>
-                                            <button class="btn btn-outline-danger me-2" type="button" id="deleteBtn">
+                                            <button class="btn btn-outline-danger me-2" type="button" name="deleteBtn"
+                                                    id="deleteBtn">
                                                 <i class="bi bi-trash me-1"></i> 删除选中
                                             </button>
                                             <button class="btn btn-outline-warning me-2" type="button" id="editBtn">
@@ -135,7 +134,6 @@
                                     <th>登记人</th>
                                     <th>登记时间</th>
                                     <th>是否有效</th>
-                                    <th>图片数量</th>
                                     <th>图片路径</th>
                                     <th>修改人</th>
                                     <th>修改时间</th>

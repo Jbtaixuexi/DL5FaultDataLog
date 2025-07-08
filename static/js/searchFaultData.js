@@ -1,3 +1,4 @@
+// 搜索及初始化操作
 document.addEventListener('DOMContentLoaded', function () {
     const faultTableBody = document.getElementById('faultTableBody');
     const searchForm = document.getElementById('searchForm');
@@ -14,28 +15,19 @@ document.addEventListener('DOMContentLoaded', function () {
         const pageSizeElement = document.getElementById('pageSizeSelect');
         const pageSizeValue = pageSizeElement ? pageSizeElement.value : DEFAULT_PAGE_SIZE;
         const data = {
-            page: currentPage,
-            page_size: pageSizeValue,
+            page: currentPage, page_size: pageSizeValue,
         };
-        [
-            'trainNumber', 'status', 'searchDateRange', 'parts',
-            'expiringDays', 'expiredDays'
-        ].forEach(field => {
+        ['trainNumber', 'status', 'searchDateRange', 'parts', 'expiringDays', 'expiredDays'].forEach(field => {
             data[field] = formData.get(field);
         });
         // 清理空字符串参数
-        const cleanedData = Object.fromEntries(
-            Object.entries(data).filter(([_, v]) => v !== '' && v !== null && v !== undefined)
-        );
+        const cleanedData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== '' && v !== null && v !== undefined));
 
         // 发送POST请求
         fetch('/faults/search_fault_data/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify(cleanedData)
+            method: 'POST', headers: {
+                'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')
+            }, body: JSON.stringify(cleanedData)
         })
             .then(response => {
                 if (!response.ok) {
@@ -176,98 +168,142 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
     // 页面加载完成后发送空搜索请求
     sendSearchRequest();
 
-    // 搜索按钮事件
+// 搜索按钮事件
     document.getElementById('searchBtn').addEventListener('click', function (event) {
         event.preventDefault();
         sendSearchRequest(1); // 重置到第一页
     });
-});
-
-// 初始化日期选择器
-flatpickr("#searchDateRange", {
-    mode: "range",
-    locale: "zh",
-    dateFormat: "Y-m-d",
-    allowInput: true,
-    static: true,
-    onChange: function (selectedDates, dateStr) {
-        if (selectedDates.length === 2) {
-            // 设置隐藏输入框的值
-            document.getElementById('actualDateRange').value = selectedDates[0].toISOString().split('T')[0] + ',' +
-                selectedDates[1].toISOString().split('T')[0];
-        }
-    }
-})
-
 
 // 添加删除按钮事件监听
-document.getElementById('deleteBtn').addEventListener('click', function () {
-    // 获取所有选中的复选框
-    const selectedCheckboxes = document.querySelectorAll('input[name="selected_ids"]:checked');
+    document.getElementById('deleteBtn').addEventListener('click', function () {
+        // 获取所有选中的复选框
+        const selectedCheckboxes = document.querySelectorAll('input[name="selected_ids"]:checked');
 
-    if (selectedCheckboxes.length === 0) {
-        alert('请至少选择一条要删除的记录！');
-        return;
-    }
+        if (selectedCheckboxes.length === 0) {
+            alert('请至少选择一条要删除的记录！');
+            return;
+        }
 
-    // 确认删除
-    if (!confirm(`确定要删除选中的 ${selectedCheckboxes.length} 条数据吗？此操作不可撤销！`)) {
-        return;
-    }
+        // 确认删除
+        if (!confirm(`确定要删除选中的 ${selectedCheckboxes.length} 条数据吗？此操作不可撤销！`)) {
+            return;
+        }
 
-    // 收集选中的ID
-    const idsToDelete = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+        // 收集选中的ID
+        const idsToDelete = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
 
-    // 发送删除请求
-    fetch('/faults/delete_faults/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ids: idsToDelete})
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('删除请求失败');
-            }
-            return response.json();
+        // 发送删除请求
+        fetch('/faults/delete_faults/', {
+            method: 'POST', headers: {
+                'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')
+            }, body: JSON.stringify({ids: idsToDelete})
         })
-        .then(data => {
-            if (data.success) {
-                alert(`成功删除 ${data.deleted_count} 条记录！`);
-                // 刷新表格
-                sendSearchRequest(currentPage);
-            } else {
-                alert(`删除失败: ${data.message}`);
-            }
-        })
-        .catch(error => {
-            console.error('删除错误:', error);
-            alert('删除过程中发生错误，请重试');
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('删除请求失败');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert(`成功删除 ${data.deleted_count} 条记录！`);
+                    // 刷新表格
+                    sendSearchRequest(currentPage);
+                } else {
+                    alert(`删除失败: ${data.message}`);
+                }
+            })
+            .catch(error => {
+                console.error('删除错误:', error);
+                alert('删除过程中发生错误，请重试');
+            });
+    });
+
+    // 全选框
+    document.getElementById('selectAll').addEventListener('change', function () {
+        const checkboxes = document.querySelectorAll('input[name="selected_ids"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
         });
+    });
+
+    // 初始化日期选择器
+    flatpickr("#searchDateRange", {
+        mode: "range",
+        locale: "zh",
+        dateFormat: "Y-m-d",
+        allowInput: true,
+        static: true,
+        onChange: function (selectedDates, dateStr) {
+            if (selectedDates.length === 2) {
+                // 设置隐藏输入框的值
+                document.getElementById('actualDateRange').value = selectedDates[0].toISOString().split('T')[0] + ',' + selectedDates[1].toISOString().split('T')[0];
+            }
+        }
+    })
+
+// 修改数据
+    document.getElementById('editBtn').addEventListener('click', function () {
+        const selectedCheckboxes = document.querySelectorAll('input[name="selected_ids"]:checked');
+
+        if (selectedCheckboxes.length === 0) {
+            alert('请选择一条要修改的记录！');
+            return;
+        }
+
+        if (selectedCheckboxes.length > 1) {
+            alert('一次只能修改一条记录！');
+            return;
+        }
+
+        const recordId = selectedCheckboxes[0].value;
+        // 跳转到修改页面并传递记录ID
+        window.location.href = `/faults/modify_fault_data.html/?id=${recordId}`;
+    });
+
 });
-document.getElementById('selectAll').addEventListener('change', function () {
-    const checkboxes = document.querySelectorAll('input[name="selected_ids"]');
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = this.checked;
+
+$(document).ready(function () {
+    // 导出按钮点击事件
+    $('#exportBtn').on('click', function () {
+        // 获取表单数据
+        const formData = $('#searchForm').serialize();
+
+        // 发送导出请求
+        $.ajax({
+            url: '/faults/export_fault_records/',
+            type: 'POST',
+            data: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')  // 获取CSRF令牌
+            },
+            xhrFields: {
+                responseType: 'blob'  // 处理二进制响应
+            },
+            success: function (blob) {
+                // 创建下载链接
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'fault_records_' + new Date().toISOString().slice(0, 10) + '.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            },
+            error: function (xhr) {
+                alert('导出失败: ' + xhr.responseText);
+            }
+        });
     });
 });
+
+
+
+
+
+
+

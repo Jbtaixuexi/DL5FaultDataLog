@@ -6,6 +6,9 @@
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'bootstrap5/bootstrap.min.css' %}">
     <script src="{% static 'jquery/jquery-3.7.1.min.js' %}"></script>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+    <script src="{% static 'outside/http_cdn.bootcdn.net_ajax_libs_flatpickr_4.6.13_flatpickr.js' %}"></script>
+    <script src="{% static 'outside/http_cdn.bootcdn.net_ajax_libs_flatpickr_4.6.13_l10n_zh.js' %}"></script>
     {% block page_specific_resources %}{% endblock %}
 </head>
 <body>

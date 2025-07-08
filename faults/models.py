@@ -74,7 +74,7 @@ class FaultRecord(models.Model):
     fault_type = models.CharField(_('故障类型'), max_length=50, db_column='故障类型')
     phenomenon = models.TextField(_('故障现象'), db_column='故障现象')
     location = models.CharField(_('位置'), max_length=200, db_column='位置')
-    status = models.CharField(_('状态'), max_length=20, choices=STATUS_CHOICES, default='pending', db_column='状态')
+    status = models.CharField(_('状态'), max_length=20, choices=STATUS_CHOICES, default='待处理', db_column='状态')
     technician = models.CharField(_('跟进技术人员'), max_length=100, db_column='跟进技术人员')
     # 替换原来的CharField为外键关联
     system = models.ForeignKey(System, on_delete=models.SET_NULL, verbose_name=_('故障系统'), null=True, blank=True,
