@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function () {
 let imageCount = 0;
 const maxImages = 5;
 
-document.getElementById('addImageBtn').addEventListener('click', function () {
+document.getElementById('addImageBtn').addEventListener('click', function() {
     if (imageCount >= maxImages) {
         alert(`最多只能上传${maxImages}张图片`);
         return;
@@ -305,7 +305,7 @@ document.getElementById('addImageBtn').addEventListener('click', function () {
     document.getElementById('uploadFields').appendChild(fieldDiv);
 
     // 添加删除按钮事件
-    fieldDiv.querySelector('.delete-image-btn').addEventListener('click', function () {
+    fieldDiv.querySelector('.delete-image-btn').addEventListener('click', function() {
         fieldDiv.remove();
         imageCount--;
         document.getElementById('imageCount').value = imageCount;
@@ -313,11 +313,11 @@ document.getElementById('addImageBtn').addEventListener('click', function () {
 
     // 添加文件选择事件
     const fileInput = fieldDiv.querySelector('input[type="file"]');
-    fileInput.addEventListener('change', function (e) {
+    fileInput.addEventListener('change', function(e) {
         const previewDiv = document.getElementById(`preview_${this.dataset.index}`);
         if (this.files && this.files[0]) {
             const reader = new FileReader();
-            reader.onload = function (e) {
+            reader.onload = function(e) {
                 previewDiv.style.display = 'block';
                 previewDiv.querySelector('img').src = e.target.result;
             }
@@ -327,6 +327,7 @@ document.getElementById('addImageBtn').addEventListener('click', function () {
         }
     });
 });
+
 
 // 表单提交处理
 document.getElementById('addForm').addEventListener('submit', function(e) {

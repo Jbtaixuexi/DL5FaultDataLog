@@ -424,11 +424,12 @@ def add_fault_data(request):
                     with open(filepath, 'wb') as f:
                         for chunk in image.chunks():
                             f.write(chunk)
+
                     # 存储相对路径
                     relative_path = os.path.join('fault_images', filename)
                     image_paths.append(relative_path)
             # 添加图片相关字段
-            data['image_count'] = image_count
+            data['image_count'] = len(image_paths)
             data['image_paths'] = image_paths
 
             # 记录处理后的数据
