@@ -1,3 +1,5 @@
+import {getCookie} from "./utils.js";
+
 // 在页面加载完成后执行
 document.addEventListener('DOMContentLoaded', function () {
     const vehicleSelect = document.getElementById('车号');
@@ -340,7 +342,7 @@ document.getElementById('addForm').addEventListener('submit', function(e) {
     const csrftoken = getCookie('csrftoken');
 
     // 发送AJAX请求
-    fetch('{% url "add_fault_data" %}', {
+    fetch('/faults/add_fault_data/', {
         method: 'POST',
         body: formData,
         headers: {
@@ -399,20 +401,5 @@ function notifyAccepter(accepter, faultId) {
     });
 }
 
-// 获取Cookie的函数
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
 
 

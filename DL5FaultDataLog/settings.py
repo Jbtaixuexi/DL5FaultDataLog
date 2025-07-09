@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
+import mimetypes
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -132,6 +133,7 @@ USE_TZ = False
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
+mimetypes.add_type("application/javascript", ".js", True)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

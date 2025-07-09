@@ -10,8 +10,8 @@
     <script src="{% static 'outside/http_cdn.bootcdn.net_ajax_libs_flatpickr_4.6.13_flatpickr.js' %}"></script>
     <script src="{% static 'outside/http_cdn.bootcdn.net_ajax_libs_flatpickr_4.6.13_l10n_zh.js' %}"></script>
     <link rel="stylesheet"
-          href="{% static 'outside/http_cdnjs.cloudflare.com_ajax_libs_lightbox2_2.11.3_css_lightbox.css' %}">
-    <script src="{% static 'outside/http_cdnjs.cloudflare.com_ajax_libs_lightbox2_2.11.3_js_lightbox.js' %}"></script>
+          href="{% static 'lightbox/css/lightbox.min.css' %}">
+    <script src="{% static 'lightbox/js/lightbox.min.js' %}"></script>
 
     {% block page_specific_resources %}{% endblock %}
 </head>
@@ -54,6 +54,14 @@
     {% block main %}{% endblock %}
 </main>
 </body>
+<script src="{% static 'lightbox/js/lightbox.min.js' %}"></script>
+<script>
+    lightbox.option({
+        'resizeDuration': 200,
+        'wrapAround': true,
+        'albumLabel': "图片 %1 / %2"
+    })
+</script>
 <script>
     // 设置媒体URL
     window.MEDIA_URL = "{{ MEDIA_URL }}";

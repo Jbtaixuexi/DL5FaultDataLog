@@ -1,3 +1,4 @@
+import {getCookie} from "./utils.js";
 // 搜索及初始化操作
 document.addEventListener('DOMContentLoaded', function () {
     const faultTableBody = document.getElementById('faultTableBody');
@@ -174,10 +175,6 @@ document.addEventListener('DOMContentLoaded', function () {
             row.appendChild(pathCell);
             faultTableBody.appendChild(row);
         });
-        // 如果有lightbox实例，刷新它
-        if (window.lightbox) {
-            lightbox.refresh();
-        }
     }
 
     function renderPagination(currentPage, totalPages) {
@@ -361,7 +358,6 @@ $(document).ready(function () {
     });
 });
 
-
 // Lightbox显示大图
 function showLightbox(src, recordId, index, allPaths) {
     const lightbox = document.getElementById('lightbox');
@@ -418,7 +414,7 @@ function showLightbox(src, recordId, index, allPaths) {
         document.body.appendChild(lb);
 
         // 点击关闭lightbox
-        lb.addEventListener('click', function(e) {
+        lb.addEventListener('click', function (e) {
             if (e.target === lb) {
                 lb.style.opacity = '0';
                 setTimeout(() => lb.style.display = 'none', 300);
@@ -431,7 +427,7 @@ function showLightbox(src, recordId, index, allPaths) {
     lightboxCounter.textContent = `${index + 1}/${allPaths.length}`;
 
     // 设置下载链接
-    lightboxDownload.onclick = function(e) {
+    lightboxDownload.onclick = function (e) {
         e.stopPropagation();
         const link = document.createElement('a');
         link.href = src;
@@ -460,7 +456,7 @@ function showLightbox(src, recordId, index, allPaths) {
             prevBtn.style.fontSize = '2rem';
             prevBtn.style.zIndex = '1001';
 
-            prevBtn.addEventListener('click', function(e) {
+            prevBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 const newIndex = (index - 1 + allPaths.length) % allPaths.length;
                 showLightbox(`${window.MEDIA_URL}${allPaths[newIndex]}`, recordId, newIndex, allPaths);
@@ -482,7 +478,7 @@ function showLightbox(src, recordId, index, allPaths) {
             nextBtn.style.fontSize = '2rem';
             nextBtn.style.zIndex = '1001';
 
-            nextBtn.addEventListener('click', function(e) {
+            nextBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 const newIndex = (index + 1) % allPaths.length;
                 showLightbox(`${window.MEDIA_URL}${allPaths[newIndex]}`, recordId, newIndex, allPaths);
