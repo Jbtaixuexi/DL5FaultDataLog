@@ -2,11 +2,15 @@
 
 {% block title %}故障记录平台{% endblock %}
 {% block page_specific_resources %}
+    <script>
+        window.MEDIA_URL = "{% get_media_prefix %}";
+        console.log("MEDIA_URL:", window.MEDIA_URL);
+    </script>
     <script type="module" src="{% static 'js/searchFaultData.js' %}"></script>
     <link rel="stylesheet" href="{% static 'css/search.css' %}">
     <link rel="stylesheet" href="{% static 'css/dataSelect.css' %}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="{% static 'bootstrap5/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'bootstrap5/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'outside/http_cdn.sheetjs.com_xlsx-0.19.3_package_dist_xlsx.full.min.js' %}"></script>
 {% endblock %}
 
@@ -135,7 +139,6 @@
                                     <th>登记时间</th>
                                     <th>是否有效</th>
                                     <th>图片</th>
-                                    <th>图片路径</th>
                                     <th>修改人</th>
                                     <th>修改时间</th>
                                 </tr>

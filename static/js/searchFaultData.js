@@ -112,10 +112,6 @@ document.addEventListener('DOMContentLoaded', function () {
             <td>${item.registrar || ''}</td>
             <td>${item.registration_time || ''}</td>
             <td>${item.is_valid ? '是' : '否'}</td>
-            <td>${item.image_count || ''}</td>
-            <td title="${item.image_paths || ''}">${item.image_paths ? '查看' : ''}</td>
-            <td>${item.modified_by || ''}</td>
-            <td>${item.modified_at || ''}</td>
         `;
             // 图片列 (缩略图展示)
             const imageCell = document.createElement('td');
@@ -127,12 +123,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 container.style.gap = '5px';
 
                 item.image_paths.forEach((path, index) => {
-                    const fullPath = `${window.MEDIA_URL}${path}`;
+                    const fullPath = window.MEDIA_URL + path;
 
                     const imgContainer = document.createElement('div');
                     imgContainer.style.position = 'relative';
                     imgContainer.style.width = '50px';
                     imgContainer.style.height = '50px';
+
+                    // 使用<a>标签包裹图片并设置Lightbox属性
+                    const link = document.createElement('a');
+                    link.href = fullPath;
+                    link.setAttribute('data-lightbox', `fault-images-${item.id}`); // 使用相同组名分组
+                    link.setAttribute('data-title', '故障记录图片');
 
                     const img = document.createElement('img');
                     img.src = fullPath;
@@ -142,10 +144,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     img.style.objectFit = 'cover';
                     img.style.cursor = 'pointer';
 
-                    // 添加点击查看大图功能
-                    img.addEventListener('click', function () {
-                        showLightbox(fullPath, item.id, index, item.image_paths);
-                    });
+                    link.appendChild(img);
+                    imgContainer.appendChild(link);
 
                     // 图片数量指示器
                     if (index === 0 && item.image_paths.length > 1) {
@@ -158,7 +158,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         imgContainer.appendChild(badge);
                     }
 
-                    imgContainer.appendChild(img);
                     container.appendChild(imgContainer);
                 });
 
@@ -167,6 +166,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 imageCell.textContent = '无图片';
             }
             row.appendChild(imageCell);
+            row.innerHTML += `
+            <td>${item.modified_by || ''}</td>
+            <td>${item.modified_at || ''}</td>
+        `;
 
             // 图片路径列 (隐藏，用于导出)
             const pathCell = document.createElement('td');
@@ -358,136 +361,7 @@ $(document).ready(function () {
     });
 });
 
-// Lightbox显示大图
-function showLightbox(src, recordId, index, allPaths) {
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
-    const lightboxCounter = document.getElementById('lightbox-counter');
-    const lightboxDownload = document.getElementById('lightbox-download');
 
-    if (!lightbox) {
-        // 创建lightbox元素
-        const lb = document.createElement('div');
-        lb.id = 'lightbox';
-        lb.style.position = 'fixed';
-        lb.style.top = '0';
-        lb.style.left = '0';
-        lb.style.width = '100%';
-        lb.style.height = '100%';
-        lb.style.backgroundColor = 'rgba(0,0,0,0.8)';
-        lb.style.display = 'flex';
-        lb.style.justifyContent = 'center';
-        lb.style.alignItems = 'center';
-        lb.style.zIndex = '1000';
-        lb.style.opacity = '0';
-        lb.style.transition = 'opacity 0.3s';
-        lb.style.cursor = 'pointer';
-
-        const img = document.createElement('img');
-        img.id = 'lightbox-img';
-        img.style.maxWidth = '90%';
-        img.style.maxHeight = '90%';
-        img.style.objectFit = 'contain';
-
-        const counter = document.createElement('div');
-        counter.id = 'lightbox-counter';
-        counter.style.position = 'absolute';
-        counter.style.top = '20px';
-        counter.style.left = '20px';
-        counter.style.color = 'white';
-        counter.style.fontSize = '1.2rem';
-        counter.style.backgroundColor = 'rgba(0,0,0,0.5)';
-        counter.style.padding = '5px 10px';
-        counter.style.borderRadius = '5px';
-
-        const downloadBtn = document.createElement('button');
-        downloadBtn.id = 'lightbox-download';
-        downloadBtn.className = 'btn btn-sm btn-primary';
-        downloadBtn.style.position = 'absolute';
-        downloadBtn.style.bottom = '20px';
-        downloadBtn.style.right = '20px';
-        downloadBtn.innerHTML = '<i class="bi bi-download"></i> 下载';
-
-        lb.appendChild(img);
-        lb.appendChild(counter);
-        lb.appendChild(downloadBtn);
-        document.body.appendChild(lb);
-
-        // 点击关闭lightbox
-        lb.addEventListener('click', function (e) {
-            if (e.target === lb) {
-                lb.style.opacity = '0';
-                setTimeout(() => lb.style.display = 'none', 300);
-            }
-        });
-    }
-
-    // 设置当前图片
-    lightboxImg.src = src;
-    lightboxCounter.textContent = `${index + 1}/${allPaths.length}`;
-
-    // 设置下载链接
-    lightboxDownload.onclick = function (e) {
-        e.stopPropagation();
-        const link = document.createElement('a');
-        link.href = src;
-        link.download = `故障记录_${recordId}_图片${index + 1}.${src.split('.').pop()}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
-    // 显示lightbox
-    lightbox.style.display = 'flex';
-    setTimeout(() => lightbox.style.opacity = '1', 10);
-
-    // 如果有多张图片，添加导航按钮
-    if (allPaths.length > 1) {
-        // 添加左箭头
-        if (!document.getElementById('lightbox-prev')) {
-            const prevBtn = document.createElement('button');
-            prevBtn.id = 'lightbox-prev';
-            prevBtn.className = 'btn btn-light';
-            prevBtn.style.position = 'absolute';
-            prevBtn.style.left = '20px';
-            prevBtn.style.top = '50%';
-            prevBtn.style.transform = 'translateY(-50%)';
-            prevBtn.innerHTML = '<i class="bi bi-chevron-left"></i>';
-            prevBtn.style.fontSize = '2rem';
-            prevBtn.style.zIndex = '1001';
-
-            prevBtn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                const newIndex = (index - 1 + allPaths.length) % allPaths.length;
-                showLightbox(`${window.MEDIA_URL}${allPaths[newIndex]}`, recordId, newIndex, allPaths);
-            });
-
-            lightbox.appendChild(prevBtn);
-        }
-
-        // 添加右箭头
-        if (!document.getElementById('lightbox-next')) {
-            const nextBtn = document.createElement('button');
-            nextBtn.id = 'lightbox-next';
-            nextBtn.className = 'btn btn-light';
-            nextBtn.style.position = 'absolute';
-            nextBtn.style.right = '20px';
-            nextBtn.style.top = '50%';
-            nextBtn.style.transform = 'translateY(-50%)';
-            nextBtn.innerHTML = '<i class="bi bi-chevron-right"></i>';
-            nextBtn.style.fontSize = '2rem';
-            nextBtn.style.zIndex = '1001';
-
-            nextBtn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                const newIndex = (index + 1) % allPaths.length;
-                showLightbox(`${window.MEDIA_URL}${allPaths[newIndex]}`, recordId, newIndex, allPaths);
-            });
-
-            lightbox.appendChild(nextBtn);
-        }
-    }
-}
 
 
 

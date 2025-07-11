@@ -551,10 +551,14 @@ def get_fault_record(request):
             'location': record.location,
             'status': record.status,
             'technician': record.technician,
-            'system_name': system_name,
-            'secondary_name': secondary_name,
-            'third_name': third_name,
-            'fourth_name': fourth_name,
+            'system_id': record.system_id,
+            'system_name': record.system.name if record.system else '',
+            'secondary_id': record.secondary_id,
+            'secondary_name': record.secondary.name if record.secondary else '',
+            'third_id': record.third_id,
+            'third_name': record.third.name if record.third else '',
+            'fourth_id': record.fourth_id,
+            'fourth_name': record.fourth.name if record.fourth else '',
             'cause': record.cause,
             'reporter': record.reporter,
             'receiver': record.receiver,
@@ -737,11 +741,9 @@ def vehicle_list(request):
 def get_systems(request):
     """获取所有系统和车号"""
     systems = System.objects.all().values('id', 'name')
-    vehicles = Vehicle.objects.all().values('id', 'plate_number')
 
     return JsonResponse({
         'systems': list(systems),
-        'vehicles': list(vehicles)
     })
 
 

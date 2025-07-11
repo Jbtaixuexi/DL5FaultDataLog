@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     fetch(apiUrl)
         .then(response => response.json())
         .then(vehicles => {
+            console.log(vehicles)
             // 清空原有选项（除了第一个"请选择车号"）
             while (vehicleSelect.options.length > 1) {
                 vehicleSelect.remove(1);
@@ -135,9 +136,6 @@ $(document).ready(function () {
 
 
 document.addEventListener('DOMContentLoaded', function () {
-    const vehicleSelect = document.getElementById('车号');
-    const apiUrl = '/faults/getVehicles/';
-
     // 获取分类选择器元素
     const systemSelect = document.getElementById('故障系统');
     const secondarySelect = document.getElementById('故障二级分类');
@@ -146,11 +144,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 加载所有分类数据
     Promise.all([
-        fetch('/faults/get-systems/').then(r => r.json()),
-        fetch('/faults/get-all-categories/').then(r => r.json())
+        fetch('/faults/get_systems/').then(r => r.json()),
+        fetch('/faults/get_all_categories/').then(r => r.json())
     ]).then(([systems, categories]) => {
-        // 填充车号
-        populateVehicleSelect(vehicleSelect, systems.vehicles);
 
         // 填充一级分类（系统）
         populateSystemSelect(systemSelect, systems.systems);
@@ -222,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!systemId) return;
 
         const secondaries = window.allCategories.secondaries.filter(
-            sec => sec.system_id == systemId
+            sec => sec.system_id === systemId
         );
 
         secondaries.forEach(sec => {
@@ -240,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!secondaryId) return;
 
         const thirds = window.allCategories.thirds.filter(
-            third => third.secondary_id == secondaryId
+            third => third.secondary_id === secondaryId
         );
 
         thirds.forEach(third => {
@@ -258,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!thirdId) return;
 
         const fourths = window.allCategories.fourths.filter(
-            fourth => fourth.third_id == thirdId
+            fourth => fourth.third_id === thirdId
         );
 
         fourths.forEach(fourth => {
