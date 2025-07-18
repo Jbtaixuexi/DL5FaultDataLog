@@ -25,8 +25,19 @@ SECRET_KEY = "django-insecure-dl@njlspr1a9%=@ah=9lpv1s$2y-!5gnp5b0xo!mj7*w-i@)&o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'dl5-fault.crrc.local',
+    '192.168.5.191',
+    'localhost',
+    '127.0.0.1'
+]
 
+# 添加CSRF信任源
+CSRF_TRUSTED_ORIGINS = [
+    'http://dl5-fault.crrc.local:8000',
+    'http://192.168.5.191:8000'
+]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Application definition
 
 INSTALLED_APPS = [
@@ -50,6 +61,8 @@ LOGIN_REDIRECT_URL = 'faults:search_fault_data'
 # 确保CSRF_COOKIE_SECURE设置为False（开发环境）
 CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_SECURE = False
+SECURE_SSL_REDIRECT = False
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -92,11 +105,9 @@ DATABASES = {
         "NAME": "DL5FaultData",
         "USER": 'root',
         "PASSWORD": '123456',
-        'HOST': 'localhost',
+        'HOST': '192.168.5.191',  # 你的服务器IP
         'PORT': '3306',
-        'OPTIONS': {
-            'charset': 'utf8mb4',  # 使用utf8mb4支持所有Unicode字符
-        },
+        'OPTIONS': {'charset': 'utf8mb4'},
     }
 }
 

@@ -237,6 +237,32 @@ document.addEventListener('DOMContentLoaded', function () {
         sendSearchRequest(1); // 重置到第一页
     });
 
+    document.getElementById('resetBtn').addEventListener('click', function (event) {
+        event.preventDefault(); // 防止默认行为
+
+        // 重置表单中的所有输入字段
+        const form = document.getElementById('searchForm');
+        form.reset();
+
+        // 重置每页条数选择器
+        const pageSizeSelect = document.getElementById('pageSizeSelect');
+        pageSizeSelect.value = '20';
+
+        // 重置日期选择器
+        const dateRangeInput = document.getElementById('searchDateRange');
+        const actualDateRange = document.getElementById('actualDateRange');
+
+        // 清除日期选择器的值
+        if (dateRangeInput._flatpickr) {
+            dateRangeInput._flatpickr.clear();
+        } else {
+            dateRangeInput.value = '';
+        }
+        actualDateRange.value = '';
+
+        // 重置后重新加载第一页数据
+        sendSearchRequest(1);
+    });
 // 添加删除按钮事件监听
     document.getElementById('deleteBtn').addEventListener('click', function () {
         // 获取所有选中的复选框

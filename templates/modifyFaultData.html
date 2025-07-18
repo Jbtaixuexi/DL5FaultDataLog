@@ -158,10 +158,22 @@
                                             <input type="text" class="form-control" id="当前进度" name="当前进度"
                                                    required>
                                         </div>
-                                        <!-- 图片部分 -->
+                                        <!-- 图片管理部分 -->
                                         <div class="form-group mt-3">
                                             <label class="form-label">图片信息</label>
-                                            <div id="imageInfo" class="form-text"></div>
+                                            <div id="imageInfo" class="form-text mb-2"></div>
+
+                                            <!-- 现有图片展示区域 -->
+                                            <div id="existingImages" class="d-flex flex-wrap gap-2 mb-3"></div>
+
+                                            <!-- 上传新图片区域 -->
+                                            <div class="image-upload-container">
+                                                <button type="button" class="btn btn-sm btn-outline-primary mb-2"
+                                                        id="addNewImageBtn">添加新图片
+                                                </button>
+                                                <div class="upload-fields" id="newUploadFields"></div>
+                                                <input type="hidden" id="newImageCount" name="newImageCount" value="0">
+                                            </div>
                                         </div>
                                     </div>
 
@@ -258,5 +270,5 @@
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'js/modifyFaultData.js' %}"></script>
+    <script type="module" src="{% static 'js/modifyFaultData.js' %}"></script>
 {% endblock %}

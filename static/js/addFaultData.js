@@ -1,10 +1,10 @@
 import {getCookie} from "./utils.js";
-
+import {loadClassificationSystems} from './utils.js';
 // 在页面加载完成后执行
 document.addEventListener('DOMContentLoaded', function () {
     const vehicleSelect = document.getElementById('车号');
     const apiUrl = '/faults/getVehicles/'; // 根据实际URL配置调整
-
+    loadClassificationSystems();
     // 发送GET请求获取车号列表
     fetch(apiUrl)
         .then(response => response.json())
@@ -97,13 +97,25 @@ $(document).ready(function () {
 
         // 添加当前用户信息
         formData.append('registrar', currentUser.username);
-
+// 添加CSRF token
+        const csrftoken = getCookie('csrftoken');  // 确保已导入getCookie
+        if (!csrftoken) {
+            console.error('CSRF token not found');
+            $('#addResult').removeClass('alert-success')
+                .addClass('alert-danger')
+                .text('安全验证失败，请刷新页面重试')
+                .show();
+            return;
+        }
         $.ajax({
             url: '/faults/add_fault_data/',
             type: 'POST',
             data: formData,
             processData: false,
             contentType: false,
+            headers: {
+                "X-CSRFToken": csrftoken
+            },
             success: function (response) {
                 if (response.success) {
                     $('#addResult').removeClass('alert-danger')
@@ -114,9 +126,12 @@ $(document).ready(function () {
                     // 重置表单
                     $('#addForm')[0].reset();
                     $('#imageCount').val('0').trigger('change');
+                    $('#uploadFields').empty();
 
-                    // 通知受理人
-                    notifyAccepter(response.accepter, response.fault_id);
+                    // 3秒后隐藏成功消息
+                    setTimeout(() => {
+                        $('#addResult').hide();
+                    }, 3000);
                 } else {
                     $('#addResult').removeClass('alert-success')
                         .addClass('alert-danger')
@@ -124,10 +139,14 @@ $(document).ready(function () {
                         .show();
                 }
             },
-            error: function () {
+            error: function (xhr) {
+                let errorMsg = '服务器错误，请稍后再试';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg = xhr.responseJSON.message;
+                }
                 $('#addResult').removeClass('alert-success')
                     .addClass('alert-danger')
-                    .text('服务器错误，请稍后再试')
+                    .text('请求错误: ' + errorMsg)
                     .show();
             }
         });
@@ -135,150 +154,11 @@ $(document).ready(function () {
 });
 
 
-document.addEventListener('DOMContentLoaded', function () {
-    // 获取分类选择器元素
-    const systemSelect = document.getElementById('故障系统');
-    const secondarySelect = document.getElementById('故障二级分类');
-    const thirdSelect = document.getElementById('三级分类');
-    const fourthSelect = document.getElementById('四级分类');
-
-    // 加载所有分类数据
-    Promise.all([
-        fetch('/faults/get_systems/').then(r => r.json()),
-        fetch('/faults/get_all_categories/').then(r => r.json())
-    ]).then(([systems, categories]) => {
-
-        // 填充一级分类（系统）
-        populateSystemSelect(systemSelect, systems.systems);
-
-        // 存储所有分类数据用于级联选择
-        window.allCategories = categories;
-
-        // 设置分类选择事件监听
-        setupCategoryListeners(systemSelect, secondarySelect, thirdSelect, fourthSelect);
-    }).catch(error => {
-        console.error('初始化失败:', error);
-    });
-
-    // 填充车号选择器
-    function populateVehicleSelect(select, vehicles) {
-        while (select.options.length > 1) {
-            select.remove(1);
-        }
-        vehicles.forEach(vehicle => {
-            const option = document.createElement('option');
-            option.value = vehicle.id;
-            option.textContent = vehicle.plate_number;
-            select.appendChild(option);
-        });
-    }
-
-    // 填充系统选择器
-    function populateSystemSelect(select, systems) {
-        systems.forEach(system => {
-            const option = document.createElement('option');
-            option.value = system.id;
-            option.textContent = system.name;
-            select.appendChild(option);
-        });
-    }
-
-    // 设置分类选择器事件监听
-    function setupCategoryListeners(systemSelect, secondarySelect, thirdSelect, fourthSelect) {
-        // 一级分类变化时更新二级分类
-        systemSelect.addEventListener('change', function () {
-            const systemId = this.value;
-            populateSecondarySelect(secondarySelect, systemId);
-
-            // 重置下级分类
-            resetSelect(thirdSelect);
-            resetSelect(fourthSelect);
-        });
-
-        // 二级分类变化时更新三级分类
-        secondarySelect.addEventListener('change', function () {
-            const secondaryId = this.value;
-            populateThirdSelect(thirdSelect, secondaryId);
-
-            // 重置下级分类
-            resetSelect(fourthSelect);
-        });
-
-        // 三级分类变化时更新四级分类
-        thirdSelect.addEventListener('change', function () {
-            const thirdId = this.value;
-            populateFourthSelect(fourthSelect, thirdId);
-        });
-    }
-
-    // 填充二级分类选择器
-    function populateSecondarySelect(select, systemId) {
-        resetSelect(select);
-
-        if (!systemId) return;
-
-        const secondaries = window.allCategories.secondaries.filter(
-            sec => sec.system_id === systemId
-        );
-
-        secondaries.forEach(sec => {
-            const option = document.createElement('option');
-            option.value = sec.id;
-            option.textContent = sec.name;
-            select.appendChild(option);
-        });
-    }
-
-    // 填充三级分类选择器
-    function populateThirdSelect(select, secondaryId) {
-        resetSelect(select);
-
-        if (!secondaryId) return;
-
-        const thirds = window.allCategories.thirds.filter(
-            third => third.secondary_id === secondaryId
-        );
-
-        thirds.forEach(third => {
-            const option = document.createElement('option');
-            option.value = third.id;
-            option.textContent = third.name;
-            select.appendChild(option);
-        });
-    }
-
-    // 填充四级分类选择器
-    function populateFourthSelect(select, thirdId) {
-        resetSelect(select);
-
-        if (!thirdId) return;
-
-        const fourths = window.allCategories.fourths.filter(
-            fourth => fourth.third_id === thirdId
-        );
-
-        fourths.forEach(fourth => {
-            const option = document.createElement('option');
-            option.value = fourth.id;
-            option.textContent = fourth.name;
-            select.appendChild(option);
-        });
-    }
-
-    // 重置选择器（保留第一个选项）
-    function resetSelect(select) {
-        while (select.options.length > 1) {
-            select.remove(1);
-        }
-        select.value = "";
-    }
-});
-
 // 图片上传功能
 let imageCount = 0;
 const maxImages = 5;
 
-document.getElementById('addImageBtn').addEventListener('click', function() {
+document.getElementById('addImageBtn').addEventListener('click', function () {
     if (imageCount >= maxImages) {
         alert(`最多只能上传${maxImages}张图片`);
         return;
@@ -303,7 +183,7 @@ document.getElementById('addImageBtn').addEventListener('click', function() {
     document.getElementById('uploadFields').appendChild(fieldDiv);
 
     // 添加删除按钮事件
-    fieldDiv.querySelector('.delete-image-btn').addEventListener('click', function() {
+    fieldDiv.querySelector('.delete-image-btn').addEventListener('click', function () {
         fieldDiv.remove();
         imageCount--;
         document.getElementById('imageCount').value = imageCount;
@@ -311,11 +191,11 @@ document.getElementById('addImageBtn').addEventListener('click', function() {
 
     // 添加文件选择事件
     const fileInput = fieldDiv.querySelector('input[type="file"]');
-    fileInput.addEventListener('change', function(e) {
+    fileInput.addEventListener('change', function (e) {
         const previewDiv = document.getElementById(`preview_${this.dataset.index}`);
         if (this.files && this.files[0]) {
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 previewDiv.style.display = 'block';
                 previewDiv.querySelector('img').src = e.target.result;
             }
@@ -328,74 +208,75 @@ document.getElementById('addImageBtn').addEventListener('click', function() {
 
 
 // 表单提交处理
-document.getElementById('addForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+// document.getElementById('addForm').addEventListener('submit', function (e) {
+//     e.preventDefault();
+//
+//     // 创建FormData对象
+//     const formData = new FormData(this);
+//
+//     // 添加CSRF token
+//     const csrftoken = getCookie('csrftoken');
+//
+//     // 发送AJAX请求
+//     fetch('/faults/add_fault_data/', {
+//         method: 'POST',
+//         body: formData,
+//         headers: {
+//             'X-CSRFToken': csrftoken
+//         }
+//     })
+//         .then(response => response.json())
+//         .then(data => {
+//             // 处理响应
+//             const resultDiv = document.getElementById('addResult');
+//             if (data.success) {
+//                 resultDiv.className = 'alert alert-success mt-3';
+//                 resultDiv.textContent = '故障记录添加成功！';
+//
+//                 // 通知受理人
+//                 // notifyAccepter(data.accepter, data.fault_id);
+//
+//                 // 3秒后重置表单
+//                 setTimeout(() => {
+//                     document.getElementById('addForm').reset();
+//                     document.getElementById('uploadFields').innerHTML = '';
+//                     imageCount = 0;
+//                     document.getElementById('imageCount').value = 0;
+//                     resultDiv.style.display = 'none';
+//                 }, 3000);
+//             } else {
+//                 resultDiv.className = 'alert alert-danger mt-3';
+//                 resultDiv.textContent = `添加失败: ${data.message}`;
+//             }
+//             resultDiv.style.display = 'block';
+//         })
+//         .catch(error => {
+//             console.error('Error:', error);
+//             const resultDiv = document.getElementById('addResult');
+//             resultDiv.className = 'alert alert-danger mt-3';
+//             resultDiv.textContent = '网络错误，请重试';
+//             resultDiv.style.display = 'block';
+//         });
+// });
 
-    // 创建FormData对象
-    const formData = new FormData(this);
-
-    // 添加CSRF token
-    const csrftoken = getCookie('csrftoken');
-
-    // 发送AJAX请求
-    fetch('/faults/add_fault_data/', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': csrftoken
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        // 处理响应
-        const resultDiv = document.getElementById('addResult');
-        if (data.success) {
-            resultDiv.className = 'alert alert-success mt-3';
-            resultDiv.textContent = '故障记录添加成功！';
-
-            // 通知受理人
-            notifyAccepter(data.accepter, data.fault_id);
-
-            // 3秒后重置表单
-            setTimeout(() => {
-                document.getElementById('addForm').reset();
-                document.getElementById('uploadFields').innerHTML = '';
-                imageCount = 0;
-                document.getElementById('imageCount').value = 0;
-                resultDiv.style.display = 'none';
-            }, 3000);
-        } else {
-            resultDiv.className = 'alert alert-danger mt-3';
-            resultDiv.textContent = `添加失败: ${data.message}`;
-        }
-        resultDiv.style.display = 'block';
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        const resultDiv = document.getElementById('addResult');
-        resultDiv.className = 'alert alert-danger mt-3';
-        resultDiv.textContent = '网络错误，请重试';
-        resultDiv.style.display = 'block';
-    });
-});
 
 // 通知受理人
-function notifyAccepter(accepter, faultId) {
-    const message = `您有一个新的故障记录需要处理，故障ID: ${faultId}`;
-
-    fetch('{% url "notify_accepted" %}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            accepter: accepter,
-            fault_id: faultId,
-            message: message
-        })
-    });
-}
+// function notifyAccepter(accepter, faultId) {
+//     const message = `您有一个新的故障记录需要处理，故障ID: ${faultId}`;
+//
+//     fetch('{% url "notify_accepted" %}', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'X-CSRFToken': getCookie('csrftoken')
+//         },
+//         body: JSON.stringify({
+//             accepter: accepter,
+//             fault_id: faultId,
+//             message: message
+//         })
+//     });
+// }
 
 
 

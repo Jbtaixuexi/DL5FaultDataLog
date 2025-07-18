@@ -1,7 +1,6 @@
 from django.urls import path
 from django.views.generic import TemplateView
 
-
 from . import views
 
 app_name = 'faults'
@@ -30,7 +29,5 @@ urlpatterns = [
     path('modify_fault_data.html/', TemplateView.as_view(template_name='modifyFaultData.html')),
     path('update_fault_record/', views.update_fault_record, name='update_fault_record'),
     path('get_fault_record/', views.get_fault_record, name='get_fault_record'),
-
+    path('delete_image/', views.delete_image, name='delete_image'),
 ]
-
-

@@ -602,8 +602,9 @@ def get_fault_record(request):
 @require_http_methods(['POST'])
 def update_fault_record(request):
     try:
-        data = json.loads(request.body)
-        record_id = data.get('recordId')
+        # 处理文件上传
+        new_images = request.FILES.getlist('new_images')
+        record_id = request.POST.get('recordId')
 
         if not record_id:
             return JsonResponse({
@@ -618,7 +619,28 @@ def update_fault_record(request):
                 'success': False,
                 'message': '记录不存在'
             })
+        # 保存新图片
+        if new_images:
+            upload_dir = os.path.join(settings.MEDIA_ROOT, 'fault_images')
+            if not os.path.exists(upload_dir):
+                os.makedirs(upload_dir)
 
+            for image in new_images:
+                # 生成唯一文件名
+                file_ext = os.path.splitext(image.name)[1]
+                filename = f"{uuid.uuid4().hex}{file_ext}"
+                filepath = os.path.join(upload_dir, filename)
+
+                # 保存文件
+                with open(filepath, 'wb') as f:
+                    for chunk in image.chunks():
+                        f.write(chunk)
+
+                # 添加到记录
+                relative_path = os.path.join('fault_images', filename)
+                record.image_paths.append(relative_path)
+
+            record.image_count = len(record.image_paths)
         # 状态映射
         STATUS_MAP = {
             '待处理': 'pending',
@@ -627,70 +649,70 @@ def update_fault_record(request):
         }
 
         # 更新记录字段
-        record.date = data.get('日期')
-        record.time = data.get('时间')
-        record.train_number = data.get('车号')
-        record.source = data.get('问题来源')
-        record.fault_type = data.get('故障类别')
-        record.phenomenon = data.get('故障现象')
-        record.location = data.get('故障具体位置')
-        record.status = STATUS_MAP.get(data.get('状态'), 'pending')
-        record.technician = data.get('跟进技术人员')
+        record.date = request.POST.get('日期')
+        record.time = request.POST.get('时间')
+        record.train_number = request.POST.get('车号')
+        record.source = request.POST.get('问题来源')
+        record.fault_type = request.POST.get('故障类别')
+        record.phenomenon = request.POST.get('故障现象')
+        record.location = request.POST.get('故障具体位置')
+        record.status = STATUS_MAP.get(request.POST.get('状态'), 'pending')
+        record.technician = request.POST.get('跟进技术人员')
 
         # 更新分类字段
-        system_id = data.get('故障系统')
+        system_id = request.POST.get('故障系统')
         if system_id and system_id.isdigit():
             record.system_id = int(system_id)
 
-        secondary_id = data.get('故障二级分类')
+        secondary_id = request.POST.get('故障二级分类')
         if secondary_id and secondary_id.isdigit():
             record.secondary_id = int(secondary_id)
 
-        third_id = data.get('三级分类')
+        third_id = request.POST.get('三级分类')
         if third_id and third_id.isdigit():
             record.third_id = int(third_id)
 
-        fourth_id = data.get('四级分类')
+        fourth_id = request.POST.get('四级分类')
         if fourth_id and fourth_id.isdigit():
             record.fourth_id = int(fourth_id)
 
         # 更新其他字段
-        record.cause = data.get('故障原因')
-        record.reporter = data.get('报告人')
-        record.receiver = data.get('受理人')
-        record.progress = data.get('当前进度')
+        record.cause = request.POST.get('故障原因')
+        record.reporter = request.POST.get('报告人')
+        record.receiver = request.POST.get('受理人')
+        record.progress = request.POST.get('当前进度')
 
-        expected_date = data.get('预计处理日期')
+        expected_date = request.POST.get('预计处理日期')
         record.expected_date = expected_date if expected_date else None
 
-        record.solution = data.get('处理办法')
+        record.solution = request.POST.get('处理办法')
 
         # 备件信息
-        part_replaced = data.get('是否更换备件')
+        part_replaced = request.POST.get('是否更换备件')
         record.part_replaced = (part_replaced == '是')
-        record.part_name = data.get('更换备件名称') if record.part_replaced else None
-        record.part_quantity = int(data.get('更换数量')) if record.part_replaced and data.get('更换数量') else None
-        record.materials = data.get('辅料') if record.part_replaced else None
-        record.tools = data.get('工具') if record.part_replaced else None
+        record.part_name = request.POST.get('更换备件名称') if record.part_replaced else None
+        record.part_quantity = int(request.POST.get('更换数量')) if record.part_replaced and request.POST.get('更换数量') else None
+        record.materials = request.POST.get('辅料') if record.part_replaced else None
+        record.tools = request.POST.get('工具') if record.part_replaced else None
 
         # 用时信息
-        record.location_time = int(data.get('故障定位用时(分钟)')) if data.get('故障定位用时(分钟)') else None
-        record.replacement_time = int(data.get('更换用时(分钟)')) if data.get('更换用时(分钟)') else None
+        record.location_time = int(request.POST.get('故障定位用时(分钟)')) if request.POST.get('故障定位用时(分钟)') else None
+        record.replacement_time = int(request.POST.get('更换用时(分钟)')) if request.POST.get('更换用时(分钟)') else None
 
-        legacy_date = data.get('遗留项处理日期')
+        legacy_date = request.POST.get('遗留项处理日期')
         record.legacy_date = legacy_date if legacy_date else None
 
         # 登记信息 - 移除时区转换
-        record.registrar = data.get('登记人')
-        registration_time = data.get('登记时间')
+        record.registrar = request.POST.get('登记人')
+        registration_time = request.POST.get('登记时间')
         if registration_time:
             record.registration_time = datetime.strptime(registration_time, '%Y-%m-%dT%H:%M')
 
-        record.is_valid = (data.get('是否有效') == '是')
+        record.is_valid = (request.POST.get('是否有效') == '是')
 
         # 修改信息 - 移除时区转换
-        record.modified_by = data.get('修改人')
-        modified_time = data.get('修改时间')
+        record.modified_by = request.POST.get('修改人')
+        modified_time = request.POST.get('修改时间')
         if modified_time:
             record.modified_at = datetime.strptime(modified_time, '%Y-%m-%dT%H:%M')
         else:
@@ -711,7 +733,6 @@ def update_fault_record(request):
         })
 
 
-@csrf_exempt
 @require_POST
 def notify_accepted(request):
     """通知受理人（实际项目中应实现通知逻辑）"""
@@ -765,3 +786,38 @@ def accepter_list(request):
     """获取所有level为1或2的用户列表"""
     accepters = CustomUser.objects.filter(level__in=[1, 2]).values('username')
     return JsonResponse(list(accepters), safe=False)
+
+
+# 删除图片视图
+@require_POST
+def delete_image(request):
+    try:
+        data = json.loads(request.body)
+        record_id = data.get('record_id')
+        image_path = data.get('image_path')
+
+        if not record_id or not image_path:
+            return JsonResponse({'success': False, 'message': '参数错误'})
+
+        record = FaultRecord.objects.get(id=record_id)
+
+        # 从记录中删除图片路径
+        if image_path in record.image_paths:
+            record.image_paths.remove(image_path)
+            record.image_count = len(record.image_paths)
+            record.save()
+
+            # 删除实际文件
+            full_path = os.path.join(settings.MEDIA_ROOT, image_path)
+            if os.path.exists(full_path):
+                os.remove(full_path)
+
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'message': '图片不在记录中'})
+
+    except FaultRecord.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '记录不存在'})
+    except Exception as e:
+        logger.error(f"删除图片失败: {str(e)}")
+        return JsonResponse({'success': False, 'message': f'删除失败: {str(e)}'})
