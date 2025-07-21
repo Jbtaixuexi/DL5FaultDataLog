@@ -24,20 +24,9 @@ SECRET_KEY = "django-insecure-dl@njlspr1a9%=@ah=9lpv1s$2y-!5gnp5b0xo!mj7*w-i@)&o
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = [
-    'dl5-fault.crrc.local',
-    '192.168.5.191',
-    'localhost',
-    '127.0.0.1'
-]
-
-# 添加CSRF信任源
-CSRF_TRUSTED_ORIGINS = [
-    'http://dl5-fault.crrc.local:8000',
-    'http://192.168.5.191:8000'
-]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+ALLOWED_HOSTS = ['FDL.DL5.cc', '192.168.200.191', 'localhost', '127.0.0.1']
+CSRF_TRUSTED_ORIGINS = ['http://FDL.DL5.cc']
 # Application definition
 
 INSTALLED_APPS = [
@@ -105,9 +94,13 @@ DATABASES = {
         "NAME": "DL5FaultData",
         "USER": 'root',
         "PASSWORD": '123456',
-        'HOST': '192.168.5.191',  # 你的服务器IP
+        'HOST': 'localhost',  # 你的服务器IP
         'PORT': '3306',
-        'OPTIONS': {'charset': 'utf8mb4'},
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'connect_timeout': 10,  # 添加连接超时
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",  # 添加SQL模式
+        },
     }
 }
 
@@ -140,13 +133,15 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "collected_static"
 mimetypes.add_type("application/javascript", ".js", True)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')   # 如果你用 http
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

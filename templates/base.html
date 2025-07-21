@@ -4,13 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
+    {% load static %}
     <link rel="stylesheet" href="{% static 'bootstrap5/css/bootstrap.min.css' %}">
     <script src="{% static 'jquery/jquery-3.7.1.min.js' %}"></script>
-    <link rel="stylesheet" href= '{% static 'outside/http_cdn.bootcdn.net_ajax_libs_flatpickr_4.6.13_flatpickr.css' %}'>
+    <link rel="stylesheet" href='{% static 'outside/http_cdn.bootcdn.net_ajax_libs_flatpickr_4.6.13_flatpickr.css' %}'>
     <script src="{% static 'outside/http_cdn.bootcdn.net_ajax_libs_flatpickr_4.6.13_flatpickr.js' %}"></script>
     <script src="{% static 'outside/http_cdn.bootcdn.net_ajax_libs_flatpickr_4.6.13_l10n_zh.js' %}"></script>
     <link rel="stylesheet" href="{% static 'lightbox/css/lightbox.min.css' %}">
-     <link rel="shortcut icon" href="{% static 'image/favicon.ico' %}" />
+    <link rel="shortcut icon" href="{% static 'image/favicon.ico' %}"/>
     <script src="{% static 'lightbox/js/lightbox.min.js' %}"></script>
     <script> lightbox.option({'resizeDuration': 200, 'wrapAround': true, 'albumLabel': "图片 %1 / %2"})</script>
     {% block page_specific_resources %}{% endblock %}
